@@ -1,0 +1,56 @@
+= ActsAsDynamicRoute
+====================
+
+This project rocks and uses MIT-LICENSE.
+
+The following code is is inspired by the the following post :
+http://codeconnoisseur.org/ramblings/creating-dynamic-routes-at-runtime-in-rails-4
+
+The purpose is to generate dynamic route using your model : For each row of one of your model you will have a route.
+
+This route is generating using a specific field. A biending is automaticaly with the id of the row.
+
+# TODO (idea & co) :
+  -> Manage translatable path
+  -> Manage adapter
+  -> Do not mandatory use active_record to store the routes. Implement for redis, elastic search, simple file...
+
+HOW INSTALL :
+---------------------
+
+First you have to install and run the migration :
+  rake acts_as_dynamic_route_engine:install:migrations
+  rake db:migrate
+
+
+HOW USE :
+---------------------
+On your model instance, just have to set the act_as like this :
+  acts_as_dynamic_route(:your_field_here, option1: value1, options2: value2)
+
+The options are the same options that you can provide to in your route file and :
+  path  : A custom path as string for your page. This page have to include the token `:your_field_here`
+  scope : A scope of your model. This let you choose whitch row of your model data can generate a route.
+
+
+EXEMPLES :
+---------------------
+
+class AmazingModel < ActiveRecord::Base
+
+  attr_accessible :field, field2, field3, field4
+
+  # Give to the dynamic route the parameter of a classical get, post, delete method.
+  acts_as_dynamic_route(:field,   path: '/amazing_model/:field',  controller: 'amazing_model', action: 'show')
+  acts_as_dynamic_route(:field2,  controller: 'amazing_model',    action: 'show')
+  acts_as_dynamic_route(:field3,  to: 'amazing_model#show')
+
+  # If you want to generate routes only for some value of your model, you can pass a scope to the dynamic route
+  acts_as_dynamic_route(:field4,  to: 'amazing_model#show', scope: :static)
+
+  scope :static, where("kind != (?)", :custom)
+  # Documenter le management de contrainte
+end
+
+FAQ :
+---------------------
